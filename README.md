@@ -7,7 +7,7 @@ The project uses a hybrid approach, with the most performance-critical systems i
 <img src="https://user-images.githubusercontent.com/76095991/208082286-faa89aad-8aeb-4598-8f36-3fb8246792ff.png"  width="30%" height="10%"> 
 The player game object has a child entity with entity components and converted Monobehaviours that are used by ECS.
 
-## The game features the following DOTS systems:
+## The game features the following ECS:
 
  ### Spawning and continuous movement
  
