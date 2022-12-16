@@ -4,12 +4,12 @@ The game features simple movement using the **_WASD_** keys and shooting using *
 
 The project uses a hybrid approach, with the most performance-critical systems implemented in ECS and necessary data from Monobehaviours converted to components using the "convert and inject game object" script. For example, shooting input is handled by a Monobehaviour script, but the projectiles themselves are entities managed by ECS. 
 
-<img src="https://user-images.githubusercontent.com/76095991/208082286-faa89aad-8aeb-4598-8f36-3fb8246792ff.png"  width="20%" height="10%"> 
+<img src="https://user-images.githubusercontent.com/76095991/208082286-faa89aad-8aeb-4598-8f36-3fb8246792ff.png"  width="30%" height="10%"> 
 The player game object has a child entity with entity components and converted Monobehaviours that are used by ECS.
 
-### The game features the following DOTS systems:
+## The game features the following DOTS systems:
 
- **Spawning and continuous movement**
+ ### Spawning and continuous movement
  
 Enemies and projectiles are created at the start of the game and have a object pool like behaviour, with enemies changing position if they are hit or not visible, and projectiles being disabled on collision or if they go out of sight. When shooting, the first inactive projectile is enabled and given a new position to "spawn" at. New projectiles are only instantiated if all projectiles in the pool are active. These systems are implemented by:
 
@@ -18,7 +18,7 @@ Enemies and projectiles are created at the start of the game and have a object p
 - the [AutomaticMovementSystem](https://github.com/loke934/SpaceShooterDOTS/blob/master/SpaceShooterDOTS/Assets/Scripts/Systems/AutomaticMovementSystem.cs) (using the [Velocity Component](https://github.com/loke934/SpaceShooterDOTS/blob/master/SpaceShooterDOTS/Assets/Scripts/Components/VelocityComponent.cs) for data),  
 - the [WithinSightSystem](https://github.com/loke934/SpaceShooterDOTS/blob/master/SpaceShooterDOTS/Assets/Scripts/Systems/WithinSightSystem.cs) (using the EnemySpawnSettingsComponent, Transform, and Translation components for data).
  
- **Collision**
+ ### Collision
  
 Entities with collision have either an [AABBCollisionComponent](https://github.com/loke934/SpaceShooterDOTS/blob/master/SpaceShooterDOTS/Assets/Scripts/Components/AABBCollisionComponent.cs) or a [SphereCollisionComponent](https://github.com/loke934/SpaceShooterDOTS/blob/master/SpaceShooterDOTS/Assets/Scripts/Components/SphereCollisionComponent.cs), and the [SetCollisionBoundsSystem](https://github.com/loke934/SpaceShooterDOTS/blob/master/SpaceShooterDOTS/Assets/Scripts/Systems/SetCollisionBoundsSystem.cs) is responsible for updating the collision bounds values in the components. Collision checking was initially done separately for AABB/AABB and AABB/Sphere with no sorting, which led to poor performance as the number of enemy entities increased. Attempts were made to try and reduce the number of collision checks per frame by using shared components and distance checking. However, these approaches either required significant and frequent structural changes or did not decrease the number of iterations over entities, resulting in no improvement.
 
