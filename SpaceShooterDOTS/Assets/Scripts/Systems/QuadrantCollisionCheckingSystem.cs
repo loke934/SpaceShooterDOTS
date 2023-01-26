@@ -20,12 +20,14 @@ public partial class QuadrantCollisionCheckingSystem : SystemBase
         bool isScore = false;
         int scores = 0;
 
-        //Size based on number of entities that has collision
+        //Size/Capacity based on number of entities that has collision
         EntityQuery collisionQuery = GetEntityQuery(typeof(CollisionTag));
+        //Can store multiple values per key, key is quadrant and value is all entities within a quadrant.
         NativeParallelMultiHashMap<int, Entity> quadrantMap = new NativeParallelMultiHashMap<int, Entity>(collisionQuery.CalculateEntityCount(), Allocator.TempJob);
 
         PopulateQuadrantMap(quadrantMap);
-
+        
+        //Projectiles VS Enemy (hit on shoot), only check collision with enemies within same quadrant.
         Entities
            .WithAll<ProjectileTag>()
            .WithStructuralChanges()
@@ -34,6 +36,8 @@ public partial class QuadrantCollisionCheckingSystem : SystemBase
                int mapKey = GetPositionHashMapKey(projectilePos.Value);
                Entity enemy;
                NativeParallelMultiHashMapIterator<int> mapIterator;
+               //Iteration in native parallel hash map values.
+               //Returns true if we have a value inside this has map key,cycle as long as there is entities in this key.
                if (quadrantMap.TryGetFirstValue(mapKey, out enemy, out mapIterator))
                {
                    do
@@ -67,7 +71,8 @@ public partial class QuadrantCollisionCheckingSystem : SystemBase
              }).Run();
         }
 
-        //AABB collision check
+        //AABB collision check (player lose health if hit by enemy)
+        //Only check collision on the enemies within the same quadrant.
         Entities
            .WithAll<PlayerTag>()
            .WithStructuralChanges()
@@ -99,6 +104,7 @@ public partial class QuadrantCollisionCheckingSystem : SystemBase
         quadrantMap.Dispose();
     }
 
+//Place enemy entities int respective qudrant in map. Key based on their pos and the add enemy entity to that value.
     private void PopulateQuadrantMap(NativeParallelMultiHashMap<int, Entity> quadrantMap)
     {
         Entities
@@ -158,6 +164,8 @@ public partial class QuadrantCollisionCheckingSystem : SystemBase
         entityManager.SetComponentData(enemy, enemyPos);
     }
 
+    //floor the  pos / quadrant size to get a int that is used as the key (convert pos to a int key).
+    //(floor rounds down and return the largest int less than or equal to given num).
     private static int GetPositionHashMapKey(float3 position)
     {
         return (int) (Mathf.Floor(position.x / quadrantCellSize) + (quadrantYMultiplier * Mathf.Floor(position.y / quadrantCellSize)) + (quadrantYMultiplier * Mathf.Floor(position.z / quadrantCellSize)));
